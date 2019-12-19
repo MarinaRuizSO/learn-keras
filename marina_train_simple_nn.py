@@ -69,7 +69,7 @@ labels = np.array(labels)
 
 
 # partition data into training and testing splits (75-25)
-trainX, testX, trainY, testY = train_test_split(data, labels, test_size=0.25, random state=42)
+(trainX, testX, trainY, testY) = train_test_split(data, labels, test_size=0.25, random_state=42)
 
 # convert labels from integers (keras default) to vectors
 
@@ -81,7 +81,7 @@ testY = lb.transform(testY)
 
 model = Sequential()
 # input layer and first hidden layer: nodes = 1024
-model.add(Dense(1024, input_shape(3072,), activation = "sigmoid"))
+model.add(Dense(1024, input_shape=(3072,), activation = "sigmoid"))
 # second hidden layer: nodes = 512
 model.add(Dense(512, activation="sigmoid"))
 # final output - number of nodes = number of class labels
@@ -105,21 +105,29 @@ print("[INFO] evaluating network")
 predictions = model.predict(testX, batch_size=32)
 print(classification_report(testY.argmax(axis=1), predictions.argmax(axis=1), target_names=lb.classes_))
 
+
+print(H.history.keys())
+
 # plot the training loss and accuracy
 N = np.arange(0,EPOCHS)
 plt.style.use("ggplot")
 plt.figure()
 plt.plot(N, H.history["loss"], label="train_loss")
-plt.plot(N, H.history["loss"], label="val_loss")
-plt.plot(N, H.history["acc"], label="train_acc")
-plt.plot(N, H.history["val_acc"], label="val_acc")
+plt.plot(N, H.history["val_loss"], label="val_loss")
+plt.plot(N, H.history["accuracy"], label="train_acc")
+plt.plot(N, H.history["val_accuracy"], label="val_acc")
 plt.title("Training Loss and Accuracy(Simple NN)")
 plt.xlabel("Epoch #")
 plt.ylabel("Loss/Accuracy")
 plt.legend()
 plt.savefig(args["plot"])
 
-
+# save model and label binarizer to disk
+print("[INFO] serializing network and label binarizer ...")
+model.save(args["model"])
+f = open(args["label_bin"], "wb")
+f.write(pickle.dumps(lb))
+f.close()
 
 
 
